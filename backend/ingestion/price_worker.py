@@ -13,7 +13,7 @@ API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 STREAM_NAME = "marketpulse:prices"
 TICKERS = ["RDDT", "RKLB"]
-POLL_INTERVAL_SECONDS = 3600
+POLL_INTERVAL_SECONDS = 5
 
 
 print(f"REDIS_URL loaded as: {REDIS_URL}")
