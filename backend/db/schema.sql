@@ -18,3 +18,15 @@ CREATE TABLE IF NOT EXISTS price_snapshots (
 -- Critical: every dashboard query filters by symbol + time
 CREATE INDEX IF NOT EXISTS idx_price_symbol_time
     ON price_snapshots(symbol, captured_at DESC);
+
+CREATE TABLE IF NOT EXISTS sentiment_records (
+    id           BIGSERIAL PRIMARY KEY,
+    symbol       VARCHAR(10) REFERENCES tickers(symbol),
+    source       VARCHAR(50),
+    body         TEXT,
+    score        NUMERIC(5, 4),
+    captured_at  TIMESTAMPTZ NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_sentiment_symbol_time
+    ON sentiment_records(symbol, captured_at DESC);
