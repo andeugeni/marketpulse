@@ -34,3 +34,5 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_sentiment_post_id
 
 CREATE INDEX IF NOT EXISTS idx_sentiment_symbol_time
     ON sentiment_records(symbol, captured_at DESC);
+
+ALTER TABLE sentiment_records ADD COLUMN IF NOT EXISTS title TEXT;
