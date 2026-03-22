@@ -22,21 +22,31 @@ function getLastMarketDay() {
 export function useSentimentData(symbol) {
   const [sentiment, setSentiment] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { open, close } = getLastMarketDay();
 
   useEffect(() => {
     if (!symbol) return;
     setLoading(true);
+
+    const { open, close } = getLastMarketDay();
+
+    // First try market hours window
     axios.get(`${BASE_URL}/tickers/${symbol}/sentiment`, {
-      params: {
-        limit: 48,
-        from: open.toISOString(),
-        to: close.toISOString(),
+      params: { limit: 48, from: open.toISOString(), to: close.toISOString() }
+    })
+    .then(res => {
+      if (res.data.length > 0) {
+        setSentiment([...res.data].reverse());
+      } else {
+        // No data for market window — fall back to latest 48 records
+        console.log(`[${symbol}] No market hours sentiment, falling back to latest records`);
+        return axios.get(`${BASE_URL}/tickers/${symbol}/sentiment`, {
+          params: { limit: 48 }
+        }).then(fallback => setSentiment([...fallback.data].reverse()));
       }
     })
-      .then(res => setSentiment([...res.data].reverse()))
-      .catch(err => console.error("Sentiment fetch error:", err))
-      .finally(() => setLoading(false));
+    .catch(err => console.error("Sentiment fetch error:", err))
+    .finally(() => setLoading(false));
+
   }, [symbol]);
 
   return { sentiment, loading };
