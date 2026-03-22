@@ -12,7 +12,7 @@ load_dotenv()
 
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
-POSTGRES_URL = os.getenv("SUPABASE_POSTGRES_REST_URL")
+POSTGRES_URL = os.getenv("POSTGRES_URL")
 STREAM_NAME = "marketpulse:reddit_sentiment"
 GROUP_NAME = "reddit_sentiment-processors"
 CONSUMER_NAME = "consumer-1"
