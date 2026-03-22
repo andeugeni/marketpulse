@@ -36,45 +36,36 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function PriceChart({ prices, sentiment }) {
 
-  // Build a time-keyed map of prices so we can align them
-  // with sentiment hourly buckets on the same x-axis
-  const priceMap = Object.fromEntries(
-    prices.map(p => {
-      const key = new Date(p.captured_at).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-      return [key, p.price];
-    })
-  );
+  // Bucket prices by hour to align with sentiment data
+  const priceBuckets = {};
+  prices.forEach(p => {
+    const hour = new Date(p.captured_at);
+    hour.setMinutes(0, 0, 0);
+    const key = hour.toISOString();
+    // Keep the last price in each hour bucket
+    priceBuckets[key] = p.price;
+  });
 
-  // Sentiment drives the x-axis since it's already bucketed hourly.
-  // We look up the matching price for each hour bucket.
-  // If no price exists for that hour, connectNulls on the Line
-  // component bridges the gap visually.
-  const chartData = sentiment.map(s => {
-    const key = new Date(s.hour).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit"
-    });
+  // Build chart data from sentiment hours, merging in price
+  const sentimentData = sentiment.map(s => {
+    const hour = new Date(s.hour);
+    hour.setMinutes(0, 0, 0);
+    const key = hour.toISOString();
     return {
-      time: key,
+      time: new Date(s.hour).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       sentiment: parseFloat(s.avg_score),
-      price: priceMap[key] ?? null,
+      price: priceBuckets[key] ? parseFloat(priceBuckets[key]) : null,
     };
   });
 
-  // Fallback — if no sentiment data yet, render price only
+  // Fallback — if no sentiment yet, render price only
   const priceOnlyData = prices.map(p => ({
-    time: new Date(p.captured_at).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit"
-    }),
-    price: p.price,
+    time: new Date(p.captured_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    price: parseFloat(p.price),
     sentiment: null,
   }));
 
-  const data = chartData.length > 0 ? chartData : priceOnlyData;
+  const data = sentimentData.length > 0 ? sentimentData : priceOnlyData;
 
   return (
     <div style={{
@@ -126,22 +117,24 @@ export default function PriceChart({ prices, sentiment }) {
               axisLine={{ stroke: "#21262d" }}
               interval={3}
             />
+            {/* Left axis — price */}
             <YAxis
               yAxisId="price"
               orientation="left"
-              tick={{ fontSize: 10, fill: "#8b949e", fontFamily: "monospace" }}
+              tick={{ fontSize: 10, fill: "#388bfd", fontFamily: "monospace" }}
               tickLine={false}
-              axisLine={false}
-              tickFormatter={v => `$${v}`}
+              axisLine={{ stroke: "#388bfd", strokeWidth: 1 }}
+              tickFormatter={v => `$${Number(v).toFixed(2)}`}
               domain={["auto", "auto"]}
-              width={60}
+              width={70}
             />
+            {/* Right axis — sentiment */}
             <YAxis
               yAxisId="sentiment"
               orientation="right"
-              tick={{ fontSize: 10, fill: "#8b949e", fontFamily: "monospace" }}
+              tick={{ fontSize: 10, fill: "#00e5a0", fontFamily: "monospace" }}
               tickLine={false}
-              axisLine={false}
+              axisLine={{ stroke: "#00e5a0", strokeWidth: 1 }}
               domain={[-1, 1]}
               width={44}
             />

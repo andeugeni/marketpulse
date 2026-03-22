@@ -26,7 +26,7 @@ async def fetch_posts(client: httpx.AsyncClient, symbol: str) -> dict | None:
         "subreddit": "wallstreetbets",
         "selftext": symbol, 
         "limit": 25,
-        "after": "7day",
+        "after": "30day",
     }
 
     try:
