@@ -1,6 +1,6 @@
 import {
   ComposedChart, Line, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
+  CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Legend
 } from "recharts";
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -16,19 +16,21 @@ const CustomTooltip = ({ active, payload, label }) => {
     }}>
       <div style={{ color: "#8b949e", marginBottom: 6 }}>{label}</div>
       {payload.map((p, i) => (
-        <div key={i} style={{
-          color: p.color,
-          display: "flex",
-          gap: 16,
-          justifyContent: "space-between"
-        }}>
-          <span>{p.name}</span>
-          <span>
-            {p.name === "price"
-              ? `$${Number(p.value).toFixed(2)}`
-              : Number(p.value).toFixed(3)}
-          </span>
-        </div>
+        p.value !== null && (
+          <div key={i} style={{
+            color: p.color,
+            display: "flex",
+            gap: 16,
+            justifyContent: "space-between"
+          }}>
+            <span>{p.name}</span>
+            <span>
+              {p.name === "price"
+                ? `$${Number(p.value).toFixed(2)}`
+                : Number(p.value).toFixed(3)}
+            </span>
+          </div>
+        )
       ))}
     </div>
   );
@@ -36,36 +38,39 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function PriceChart({ prices, sentiment }) {
 
-  // Bucket prices by hour to align with sentiment data
-  const priceBuckets = {};
+  // Build a unified time series keyed by hour
+  // Each entry has a time label, price, and sentiment
+  const timeMap = {};
+
+  // Add prices first — bucket to nearest hour
   prices.forEach(p => {
-    const hour = new Date(p.captured_at);
-    hour.setMinutes(0, 0, 0);
-    const key = hour.toISOString();
-    // Keep the last price in each hour bucket
-    priceBuckets[key] = p.price;
+    const d = new Date(p.captured_at);
+    d.setMinutes(0, 0, 0);
+    const key = d.toISOString();
+    if (!timeMap[key]) timeMap[key] = { time: null, price: null, sentiment: null };
+    timeMap[key].price = parseFloat(p.price);
+    timeMap[key].time = d.toLocaleDateString([], { month: "short", day: "numeric" })
+      + " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   });
 
-  // Build chart data from sentiment hours, merging in price
-  const sentimentData = sentiment.map(s => {
-    const hour = new Date(s.hour);
-    hour.setMinutes(0, 0, 0);
-    const key = hour.toISOString();
-    return {
-      time: new Date(s.hour).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      sentiment: parseFloat(s.avg_score),
-      price: priceBuckets[key] ? parseFloat(priceBuckets[key]) : null,
-    };
+  // Merge sentiment into same keys
+  sentiment.forEach(s => {
+    const d = new Date(s.hour);
+    d.setMinutes(0, 0, 0);
+    const key = d.toISOString();
+    if (!timeMap[key]) timeMap[key] = { time: null, price: null, sentiment: null };
+    timeMap[key].sentiment = parseFloat(s.avg_score);
+    if (!timeMap[key].time) {
+      timeMap[key].time = d.toLocaleDateString([], { month: "short", day: "numeric" })
+        + " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
   });
 
-  // Fallback — if no sentiment yet, render price only
-  const priceOnlyData = prices.map(p => ({
-    time: new Date(p.captured_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    price: parseFloat(p.price),
-    sentiment: null,
-  }));
-
-  const data = sentimentData.length > 0 ? sentimentData : priceOnlyData;
+  // Sort by time and flatten to array
+  const data = Object.entries(timeMap)
+    .sort(([a], [b]) => new Date(a) - new Date(b))
+    .map(([, v]) => v)
+    .filter(v => v.time !== null);
 
   return (
     <div style={{
@@ -87,7 +92,7 @@ export default function PriceChart({ prices, sentiment }) {
           textTransform: "uppercase",
           letterSpacing: "0.5px"
         }}>
-          Price + Sentiment · Hourly
+          Price + Sentiment · 7 Day
         </span>
         <div style={{ display: "flex", gap: 16, fontSize: 11 }}>
           <span style={{ color: "#388bfd" }}>── Price</span>
@@ -112,29 +117,27 @@ export default function PriceChart({ prices, sentiment }) {
             <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
             <XAxis
               dataKey="time"
-              tick={{ fontSize: 10, fill: "#8b949e", fontFamily: "monospace" }}
+              tick={{ fontSize: 9, fill: "#8b949e", fontFamily: "monospace" }}
               tickLine={false}
               axisLine={{ stroke: "#21262d" }}
-              interval={3}
+              interval={Math.floor(data.length / 6)}
             />
-            {/* Left axis — price */}
             <YAxis
               yAxisId="price"
               orientation="left"
               tick={{ fontSize: 10, fill: "#388bfd", fontFamily: "monospace" }}
               tickLine={false}
-              axisLine={{ stroke: "#388bfd", strokeWidth: 1 }}
+              axisLine={{ stroke: "#21262d" }}
               tickFormatter={v => `$${Number(v).toFixed(2)}`}
               domain={["auto", "auto"]}
-              width={70}
+              width={72}
             />
-            {/* Right axis — sentiment */}
             <YAxis
               yAxisId="sentiment"
               orientation="right"
               tick={{ fontSize: 10, fill: "#00e5a0", fontFamily: "monospace" }}
               tickLine={false}
-              axisLine={{ stroke: "#00e5a0", strokeWidth: 1 }}
+              axisLine={{ stroke: "#21262d" }}
               domain={[-1, 1]}
               width={44}
             />
@@ -149,7 +152,7 @@ export default function PriceChart({ prices, sentiment }) {
               yAxisId="sentiment"
               dataKey="sentiment"
               fill="#388bfd"
-              opacity={0.18}
+              opacity={0.15}
               radius={[1, 1, 0, 0]}
               name="sentiment"
             />
