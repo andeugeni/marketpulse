@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect, Query
-from api.models import TickerResponse, PriceResponse, SentimentResponse, SummaryResponse
+from api.models import TickerResponse, PriceResponse, SentimentResponse, SummaryResponse, PostResponse
 import asyncio
 from datetime import datetime
 from typing import Optional
@@ -230,3 +230,26 @@ async def websocket_endpoint(websocket: WebSocket, symbol: str):
 
     except WebSocketDisconnect:
         print(f"[{symbol}] WebSocket client disconnected")
+
+@router.get("/tickers/{symbol}/posts", response_model=list[PostResponse])
+async def get_posts(symbol: str, request: Request, limit: int = 20):
+    pool = get_pool(request)
+    async with pool.acquire() as conn:
+        ticker = await conn.fetchrow(
+            "SELECT symbol FROM tickers WHERE symbol = $1", symbol.upper()
+        )
+        if not ticker:
+            raise HTTPException(status_code=404, detail=f"Ticker {symbol} not found")
+
+        rows = await conn.fetch(
+            """
+            SELECT id, symbol, source, title, body, score, post_id, captured_at
+            FROM sentiment_records
+            WHERE symbol = $1
+            ORDER BY captured_at DESC
+            LIMIT $2
+            """,
+            symbol.upper(),
+            limit,
+        )
+    return [dict(row) for row in rows]

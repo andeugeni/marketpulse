@@ -29,3 +29,13 @@ class SummaryResponse(BaseModel):
     price_captured_at: datetime
     avg_sentiment: float
     sentiment_post_count: int
+
+class PostResponse(BaseModel):
+    id: int
+    symbol: str
+    source: str
+    title: Optional[str]
+    body: str
+    score: float
+    post_id: str
+    captured_at: datetime

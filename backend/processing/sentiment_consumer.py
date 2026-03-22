@@ -41,19 +41,22 @@ async def ensure_consumer_group(redis):
     captured_at  TIMESTAMPTZ NOT NULL
 '''
 async def write_to_postgres(pool, record: dict):
-    text = record.get("title", "") + " " + record.get("body", "")
+    title = record.get("title", "")
+    body = record.get("body", "")
+    text = title + " " + body
     score = analyzer.polarity_scores(text)["compound"]
 
     async with pool.acquire() as conn:
         await conn.execute(
             """
-            INSERT INTO sentiment_records (symbol, source, body, score, post_id, captured_at)
-            VALUES ($1, $2, $3, $4, $5, $6::timestamptz)
+            INSERT INTO sentiment_records (symbol, source, title, body, score, post_id, captured_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz)
             ON CONFLICT (post_id) DO NOTHING
             """,
             record["symbol"],
             record["subreddit"],
-            record["body"],
+            title,
+            body,
             score,
             record["post_id"],
             str_to_datetime(record["captured_at"]),
