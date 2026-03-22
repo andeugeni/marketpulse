@@ -11,7 +11,7 @@ load_dotenv()
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 STREAM_NAME = "marketpulse:reddit_sentiment"
-TICKERS = ["RDDT", "RKLB"]
+TICKERS = ["RDDT", "RKLB", "GOOG", "SMCI"]
 POLL_INTERVAL_SECONDS = 3600
 
 

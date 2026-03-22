@@ -9,11 +9,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
+API_KEY = os.getenv("FINNHUB_API_KEY")
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 STREAM_NAME = "marketpulse:prices"
-TICKERS = ["RDDT", "RKLB"]
-POLL_INTERVAL_SECONDS = 5
+TICKERS = ["RDDT", "RKLB", "GOOG", "SMCI"]
+POLL_INTERVAL_SECONDS = 30
 
 
 print(f"REDIS_URL loaded as: {REDIS_URL}")
@@ -21,33 +21,36 @@ print(f"REDIS_URL loaded as: {REDIS_URL}")
 
 async def fetch_quote(client: httpx.AsyncClient, symbol: str) -> dict | None:
     # MOCK - DELETE WHEN LIVE
-    return {
-        "symbol": symbol,
-        "price": 67.67,
-        "volume": 416767,
-        "captured_at": datetime.now(timezone.utc).isoformat()
-    }
+    # return {
+    #     "symbol": symbol,
+    #     "price": 67.67,
+    #     "volume": 416767,
+    #     "captured_at": datetime.now(timezone.utc).isoformat()
+    # }
 
     # LIVE PRODUCTION CODE
-    url = "https://www.alphavantage.co/query"
+    url = "https://finnhub.io/api/v1/quote"
     params = {
-        "function": "GLOBAL_QUOTE",
         "symbol": symbol,
-        "apikey": API_KEY,
+        "token": API_KEY,
     }
 
     try:
         response = await client.get(url, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
-        quote = data.get("Global Quote", {})
-        if not quote:
-            print(f"[{symbol}] Empty response — possibly rate limited")
+
+        print(f"[{symbol}] Raw response: {data}")
+
+        # Finnhub returns all zeros when market is closed or symbol is invalid
+        if not data.get("c") or data["c"] == 0:
+            print(f"[{symbol}] Price is 0 — market likely closed or symbol not found")
             return None
+
         return {
             "symbol": symbol,
-            "price": quote.get("05. price"),
-            "volume": quote.get("06. volume"),
+            "price": data["c"],       # current price
+            "volume": data.get("v"),  # volume
             "captured_at": datetime.now(timezone.utc).isoformat(),
         }
     except Exception as e:
