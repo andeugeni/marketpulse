@@ -12,7 +12,7 @@ load_dotenv()
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 STREAM_NAME = "marketpulse:reddit_sentiment"
 TICKERS = ["RDDT", "RKLB"]
-POLL_INTERVAL_SECONDS = 7200
+POLL_INTERVAL_SECONDS = 3600
 
 
 print(f"REDIS_URL loaded as: {REDIS_URL}")
@@ -24,36 +24,37 @@ async def fetch_posts(client: httpx.AsyncClient, symbol: str) -> dict | None:
     url = "https://arctic-shift.photon-reddit.com/api/posts/search"
     params = {
         "subreddit": "wallstreetbets",
-        "title": symbol,
+        "selftext": symbol, 
         "limit": 25,
-        "after": "1day",
+        "after": "7day",
     }
 
     try:
         response = await client.get(url, params=params, timeout=10)
         response.raise_for_status()
-        data = response.json()['data']
-        # quote = data.get("Global Quote", {})
-        # if not quote:
-        #     print(f"[{symbol}] Empty response — possibly rate limited")
-        #     return None
+        data = response.json().get("data", []) or []
 
+        records = []
         for post in data:
             try:
-                return {
+                record = {
                     "symbol": symbol,
-                    "title": post['title'],
-                    "body": post['selftext'],
+                    "title": post["title"],
+                    "body": post.get("selftext", ""),
                     "subreddit": "wallstreetbets",
-                    "post_id": post['id'],
+                    "post_id": post["id"],
                     "captured_at": datetime.now(timezone.utc).isoformat(),
                 }
+                records.append(record)
+                print(f"[{symbol}] Collected post: {post['title'][:60]}")
             except Exception as e:
-                print(f"Error logging post: {post['title']}")
+                print(f"[{symbol}] Error parsing post: {e}")
+
+        return records
 
     except Exception as e:
         print(f"[{symbol}] Fetch error: {e}")
-        return None
+        return []
 
 
 async def run():
@@ -62,11 +63,12 @@ async def run():
         print(f"Reddit worker started. Polling {TICKERS} every {POLL_INTERVAL_SECONDS}s")
         while True:
             for symbol in TICKERS:
-                record = await fetch_posts(client, symbol)
-                if record:
-                    await redis.xadd(STREAM_NAME, {"data": json.dumps(record)})
-                    print(f"[{symbol}] Published to stream: ${record['title']}")
-                await asyncio.sleep(1)  # small delay between ticker requests
+                print(f"[{symbol}] TICKER ---")
+                posts = await fetch_posts(client, symbol)
+                for post in posts:
+                    await redis.xadd(STREAM_NAME, {"data": json.dumps(post)})
+                print(f"[{symbol}] {len(posts)} posts published to stream")
+                await asyncio.sleep(1)
             await asyncio.sleep(POLL_INTERVAL_SECONDS)
 
 
