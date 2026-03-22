@@ -8,7 +8,7 @@ from api.routes import router
 
 load_dotenv()
 
-POSTGRES_URL = os.getenv("POSTGRES_URL")
+POSTGRES_URL = os.getenv("SUPABASE_POSTGRES_REST_URL")
 
 
 @asynccontextmanager
