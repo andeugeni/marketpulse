@@ -3,14 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncpg
 import os
-from dotenv import load_dotenv
 from api.routes import router
-
-# load_dotenv()
 
 POSTGRES_URL = os.getenv("POSTGRES_URL")
 
-print(f"POSTGRES_URL at startup: {os.getenv('SUPABASE_POSTGRES_REST_URL')}")
+print(f"POSTGRES_URL at startup: {POSTGRES_URL}")
+print(f"ALL VARS: { {k: v for k, v in os.environ.items() if 'POSTGRES' in k or 'REDIS' in k or 'FINNHUB' in k} }")
 
 
 @asynccontextmanager
@@ -26,7 +24,7 @@ app = FastAPI(title="MarketPulse API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
