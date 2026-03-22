@@ -2,6 +2,7 @@ import { useState } from "react";
 import TickerSelector from "./components/TickerSelector";
 import StatCards from "./components/StatCards";
 import PriceChart from "./components/PriceChart";
+import SentimentFeed from "./components/SentimentFeed";
 import { usePriceData } from "./hooks/usePriceData";
 import { useSentimentData } from "./hooks/useSentimentData";
 import { useWebSocket } from "./hooks/useWebSocket";
@@ -56,6 +57,7 @@ export default function App() {
 
         <StatCards prices={prices} sentiment={sentiment} />
         <PriceChart prices={prices} sentiment={sentiment} />
+        <SentimentFeed symbol={activeTicker} />
 
       </div>
     </div>
