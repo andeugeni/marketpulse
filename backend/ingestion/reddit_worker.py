@@ -16,11 +16,11 @@ STREAM_NAME = "marketpulse:reddit_sentiment"
 POLL_INTERVAL_SECONDS = 3600
 
 # General sentiment subreddits — search by ticker symbol
-GENERAL_SUBREDDITS = ["wallstreetbets", "investing", "stocks"]
+GENERAL_SUBREDDITS = ["wallstreetbets", "investing", "stocks", "thetagang", "ValueInvesting"]
 
 # Company-specific subreddits — all posts are relevant, no title filter needed
 TICKER_SUBREDDITS = {
-    "RKLB": ["RKLB"],
+    "RKLB": ["RKLB", "RKLBInvestors"],
     "RDDT": ["RDDT", "redditstock"],
     "SMCI": ["SMCIDiscussion"],
     "GOOG": ["GOOG_Stock"],

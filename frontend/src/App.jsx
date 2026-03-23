@@ -56,7 +56,7 @@ export default function App() {
         params: { limit: 500, from: from.toISOString(), to: to.toISOString() }
       }),
       axios.get(`${BASE_URL}/tickers/${activeTicker}/sentiment`, {
-        params: { limit: 168, from: from.toISOString(), to: to.toISOString() }
+        params: { limit: 24, from: sentimentFrom.toISOString(), to: new Date().toISOString() }
       }),
       axios.get(`${BASE_URL}/tickers/${activeTicker}/posts?limit=20`),
     ])
