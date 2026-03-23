@@ -168,7 +168,7 @@ export default function PriceChart({ prices, sentiment }) {
             />
             <Line
               yAxisId="price"
-              type="monotone"
+              type="linear"
               dataKey="price"
               stroke="#388bfd"
               strokeWidth={2}
