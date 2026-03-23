@@ -26,7 +26,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://your-vercel-url.vercel.app",
+        "https://marketpulse-nine-lovat.vercel.app",
         "*"
     ],
     allow_methods=["*"],
