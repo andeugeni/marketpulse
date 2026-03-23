@@ -53,14 +53,14 @@ async def get_prices(
             SELECT symbol, price, volume, captured_at
             FROM price_snapshots
             WHERE symbol = $1
-            AND (($2::timestamptz IS NULL) OR captured_at >= $2::timestamptz)
-            AND (($3::timestamptz IS NULL) OR captured_at <= $3::timestamptz)
+            AND ($2::timestamptz IS NULL OR captured_at >= $2)
+            AND ($3::timestamptz IS NULL OR captured_at <= $3)
             ORDER BY captured_at DESC
             LIMIT $4
             """,
             symbol.upper(),
-            str(from_) if from_ else None,
-            str(to) if to else None,
+            from_,   # pass datetime directly, not str(from_)
+            to,      # pass datetime directly, not str(to)
             limit,
         )
     return [dict(row) for row in rows]
@@ -99,8 +99,8 @@ async def get_sentiment(
             LIMIT $4
             """,
             symbol.upper(),
-            str(from_) if from_ else None,
-            str(to) if to else None,
+            from_,   # pass datetime directly, not str(from_)
+            to,      # pass datetime directly, not str(to)
             limit,
         )
     return [dict(row) for row in rows]
