@@ -50,7 +50,7 @@ async def write_to_postgres(pool, record: dict):
         await conn.execute(
             """
             INSERT INTO sentiment_records (symbol, source, title, body, score, post_id, captured_at, link)
-            VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz)
+            VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz, $8)
             ON CONFLICT (post_id) DO NOTHING
             """,
             record["symbol"],
