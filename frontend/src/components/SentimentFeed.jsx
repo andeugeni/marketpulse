@@ -142,7 +142,12 @@ export default function SentimentFeed({ symbol, posts = [] }) {
               </div>
 
               {/* Title */}
-              <a href={post.link}>
+              <a 
+                href={"https://reddit.com" + post.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: "none" }}
+              >
               <p style={{
                 fontSize: 14,
                 fontWeight: 600,

@@ -102,7 +102,7 @@ async def fetch_ticker_subreddit_posts(
                     "captured_at": datetime.fromtimestamp(
                         post["created_utc"], tz=timezone.utc
                     ).isoformat(),
-                    "link": post['url']
+                    "link": post['permalink']
                 })
             except Exception as e:
                 print(f"[{symbol}] Error parsing post from r/{subreddit}: {e}")
