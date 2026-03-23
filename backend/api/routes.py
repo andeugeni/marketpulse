@@ -238,7 +238,8 @@ async def get_posts(symbol: str, request: Request, limit: int = 20):
     pool = get_pool(request)
     async with pool.acquire() as conn:
         ticker = await conn.fetchrow(
-            "SELECT symbol FROM tickers WHERE symbol = $1", symbol.upper()
+            "SELECT symbol FROM tickers WHERE symbol = $1",
+            symbol.upper()
         )
         if not ticker:
             raise HTTPException(status_code=404, detail=f"Ticker {symbol} not found")
