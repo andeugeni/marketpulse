@@ -49,7 +49,7 @@ async def write_to_postgres(pool, record: dict):
     async with pool.acquire() as conn:
         await conn.execute(
             """
-            INSERT INTO sentiment_records (symbol, source, title, body, score, post_id, captured_at)
+            INSERT INTO sentiment_records (symbol, source, title, body, score, post_id, captured_at, link)
             VALUES ($1, $2, $3, $4, $5, $6, $7::timestamptz)
             ON CONFLICT (post_id) DO NOTHING
             """,
@@ -60,6 +60,7 @@ async def write_to_postgres(pool, record: dict):
             score,
             record["post_id"],
             str_to_datetime(record["captured_at"]),
+            record["link"]
         )
 
 def str_to_datetime(date_string: str):
