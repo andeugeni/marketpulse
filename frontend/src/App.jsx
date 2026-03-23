@@ -50,6 +50,9 @@ export default function App() {
 
     const { from, to } = getLastTradingDay();
 
+    const sentimentFrom = new Date();
+    sentimentFrom.setHours(sentimentFrom.getHours() - 24);
+
     // Fire all three requests simultaneously — one Supabase wakeup instead of three
     Promise.all([
       axios.get(`${BASE_URL}/tickers/${activeTicker}/prices`, {
