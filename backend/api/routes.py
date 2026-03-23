@@ -42,7 +42,8 @@ async def get_prices(
     pool = get_pool(request)
     async with pool.acquire() as conn:
         ticker = await conn.fetchrow(
-            "SELECT symbol FROM tickers WHERE symbol = $1", symbol.upper()
+            "SELECT symbol FROM tickers WHERE symbol = $1",
+            symbol.upper()
         )
         if not ticker:
             raise HTTPException(status_code=404, detail=f"Ticker {symbol} not found")
@@ -52,14 +53,14 @@ async def get_prices(
             SELECT symbol, price, volume, captured_at
             FROM price_snapshots
             WHERE symbol = $1
-              AND ($2::timestamptz IS NULL OR captured_at >= $2)
-              AND ($3::timestamptz IS NULL OR captured_at <= $3)
+            AND (($2::timestamptz IS NULL) OR captured_at >= $2::timestamptz)
+            AND (($3::timestamptz IS NULL) OR captured_at <= $3::timestamptz)
             ORDER BY captured_at DESC
             LIMIT $4
             """,
             symbol.upper(),
-            from_,
-            to,
+            str(from_) if from_ else None,
+            str(to) if to else None,
             limit,
         )
     return [dict(row) for row in rows]
@@ -76,7 +77,8 @@ async def get_sentiment(
     pool = get_pool(request)
     async with pool.acquire() as conn:
         ticker = await conn.fetchrow(
-            "SELECT symbol FROM tickers WHERE symbol = $1", symbol.upper()
+            "SELECT symbol FROM tickers WHERE symbol = $1",
+            symbol.upper()
         )
         if not ticker:
             raise HTTPException(status_code=404, detail=f"Ticker {symbol} not found")
@@ -90,15 +92,15 @@ async def get_sentiment(
                 COUNT(*)                         AS post_count
             FROM sentiment_records
             WHERE symbol = $1
-              AND ($2::timestamptz IS NULL OR captured_at >= $2)
-              AND ($3::timestamptz IS NULL OR captured_at <= $3)
+            AND (($2::timestamptz IS NULL) OR captured_at >= $2::timestamptz)
+            AND (($3::timestamptz IS NULL) OR captured_at <= $3::timestamptz)
             GROUP BY symbol, DATE_TRUNC('hour', captured_at)
             ORDER BY hour DESC
             LIMIT $4
             """,
             symbol.upper(),
-            from_,
-            to,
+            str(from_) if from_ else None,
+            str(to) if to else None,
             limit,
         )
     return [dict(row) for row in rows]
