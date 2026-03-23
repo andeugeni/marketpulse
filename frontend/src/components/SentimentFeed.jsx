@@ -142,6 +142,7 @@ export default function SentimentFeed({ symbol, posts = [] }) {
               </div>
 
               {/* Title */}
+              <a href={post.link}>
               <p style={{
                 fontSize: 14,
                 fontWeight: 600,
@@ -150,10 +151,11 @@ export default function SentimentFeed({ symbol, posts = [] }) {
                 lineHeight: 1.4,
                 fontFamily: "sans-serif",
               }}>
-                <a href={post.link}>
+                
                   [{post.symbol}] — {post.title || "No title"}
-                </a>
+                
               </p>
+              </a>
 
               {/* Body */}
               <p style={{
