@@ -21,7 +21,7 @@ export default function App() {
 
     const to = new Date();
     const from = new Date();
-    from.setDate(from.getDate() - 7);
+    from.setDate(from.getDate() - 1);
 
     // Fire all three requests simultaneously — one Supabase wakeup instead of three
     Promise.all([

@@ -92,7 +92,7 @@ export default function PriceChart({ prices, sentiment }) {
           textTransform: "uppercase",
           letterSpacing: "0.5px"
         }}>
-          Price + Sentiment · 7 Day
+          Price + Sentiment · 1 Day
         </span>
         <div style={{ display: "flex", gap: 16, fontSize: 11 }}>
           <span style={{ color: "#388bfd" }}>── Price</span>
