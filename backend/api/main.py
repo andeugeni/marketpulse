@@ -4,6 +4,11 @@ from contextlib import asynccontextmanager
 import asyncpg
 import os
 from api.routes import router
+from dotenv import load_dotenv
+import asyncio
+
+if os.path.exists(os.path.join(os.path.dirname(__file__), "../.env")):
+    load_dotenv(os.path.join(os.path.dirname(__file__), "../.env"))
 
 POSTGRES_URL = os.getenv("POSTGRES_URL")
 
@@ -34,3 +39,22 @@ app.add_middleware(
 
 app.include_router(router)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.pool = await asyncpg.create_pool(POSTGRES_URL)
+    print("Database pool created")
+    
+    # Keepalive task — prevents Supabase free tier spindown
+    async def keepalive():
+        while True:
+            await asyncio.sleep(300)  # every 5 minutes
+            try:
+                async with app.state.pool.acquire() as conn:
+                    await conn.fetchval("SELECT 1")
+                print("Keepalive ping sent")
+            except Exception as e:
+                print(f"Keepalive error: {e}")
+    
+    asyncio.create_task(keepalive())
+    yield
+    await app.state.pool.close()
