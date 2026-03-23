@@ -35,19 +35,7 @@ function ScoreBar({ score }) {
   );
 }
 
-export default function SentimentFeed({ symbol }) {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!symbol) return;
-    setLoading(true);
-    axios.get(`${BASE_URL}/tickers/${symbol}/posts?limit=20`)
-      .then(res => setPosts(res.data))
-      .catch(err => console.error("Posts fetch error:", err))
-      .finally(() => setLoading(false));
-  }, [symbol]);
-
+export default function SentimentFeed({ symbol, posts = [] }) {
   return (
     <div style={{
       background: "#161b22",
@@ -55,6 +43,7 @@ export default function SentimentFeed({ symbol }) {
       borderRadius: 8,
       padding: 24,
     }}>
+      {/* Header — no hardcoded subreddit */}
       <div style={{
         display: "flex",
         justifyContent: "space-between",
@@ -69,15 +58,18 @@ export default function SentimentFeed({ symbol }) {
         }}>
           Sentiment Feed
         </span>
-        <span style={{ fontSize: 11, color: "#8b949e" }}>r/wallstreetbets</span>
+        <span style={{ fontSize: 11, color: "#484f58" }}>
+          {posts.length} posts
+        </span>
       </div>
 
-      {loading ? (
-        <div style={{ color: "#8b949e", fontSize: 14, textAlign: "center", padding: 24 }}>
-          Loading posts...
-        </div>
-      ) : posts.length === 0 ? (
-        <div style={{ color: "#8b949e", fontSize: 14, textAlign: "center", padding: 24 }}>
+      {posts.length === 0 ? (
+        <div style={{
+          color: "#8b949e",
+          fontSize: 14,
+          textAlign: "center",
+          padding: 24
+        }}>
           No posts found for {symbol}
         </div>
       ) : (
@@ -88,34 +80,59 @@ export default function SentimentFeed({ symbol }) {
               padding: "16px 0",
             }}>
 
-              {/* Top row — ticker + signal + time */}
+              {/* Top row — ticker + subreddit + signal + time */}
               <div style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
                 marginBottom: 8
               }}>
-                <span style={{
-                  fontSize: 15,
-                  fontWeight: 700,
-                  padding: "3px 10px",
-                  borderRadius: 4,
-                  background: "rgba(56,139,253,0.15)",
-                  color: "#388bfd",
-                  border: "1px solid rgba(56,139,253,0.3)",
-                  letterSpacing: "0.5px"
-                }}>
-                  {post.symbol}
-                </span>
+                {/* Left: ticker badge + subreddit */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{
+                    fontSize: 15,
+                    fontWeight: 700,
+                    padding: "3px 10px",
+                    borderRadius: 4,
+                    background: "rgba(56,139,253,0.15)",
+                    color: "#388bfd",
+                    border: "1px solid rgba(56,139,253,0.3)",
+                    letterSpacing: "0.5px"
+                  }}>
+                    {post.symbol}
+                  </span>
+                  <span style={{
+                    fontSize: 11,
+                    color: "#484f58",
+                    fontFamily: "monospace"
+                  }}>
+                    r/{post.source}
+                  </span>
+                </div>
+
+                {/* Right: signal + time */}
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{
                     fontSize: 12,
                     fontWeight: 700,
-                    color: post.score > 0.2 ? "#00e5a0" : post.score < -0.2 ? "#ff4d6d" : "#f0c040"
+                    color: post.score > 0.2
+                      ? "#00e5a0"
+                      : post.score < -0.2
+                      ? "#ff4d6d"
+                      : "#f0c040"
                   }}>
-                    {post.score > 0.2 ? "▲ BULL" : post.score < -0.2 ? "▼ BEAR" : "◆ NEUTRAL"}
+                    {post.score > 0.2
+                      ? "▲ BULL"
+                      : post.score < -0.2
+                      ? "▼ BEAR"
+                      : "◆ NEUTRAL"}
                   </span>
                   <span style={{ fontSize: 11, color: "#484f58" }}>
+                    {new Date(post.captured_at).toLocaleDateString([], {
+                      month: "short",
+                      day: "numeric"
+                    })}
+                    {" "}
                     {new Date(post.captured_at).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit"
@@ -124,7 +141,7 @@ export default function SentimentFeed({ symbol }) {
                 </div>
               </div>
 
-              {/* Title — [TICKER] - [POST TITLE] */}
+              {/* Title */}
               <p style={{
                 fontSize: 14,
                 fontWeight: 600,
@@ -133,10 +150,10 @@ export default function SentimentFeed({ symbol }) {
                 lineHeight: 1.4,
                 fontFamily: "sans-serif",
               }}>
-                {post.title || "No title"}
+                [{post.symbol}] — {post.title || "No title"}
               </p>
 
-              {/* Post body */}
+              {/* Body */}
               <p style={{
                 fontSize: 13,
                 color: "#8b949e",
