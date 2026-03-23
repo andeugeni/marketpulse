@@ -67,7 +67,7 @@ def str_to_datetime(date_string: str):
 
 async def run():
     redis = await aioredis.from_url(REDIS_URL)
-    pool = await asyncpg.create_pool(POSTGRES_URL)
+    pool = await asyncpg.create_pool(POSTGRES_URL, statement_cache_size=0)
 
     await ensure_consumer_group(redis)
 
