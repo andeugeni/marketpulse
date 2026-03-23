@@ -41,7 +41,7 @@ app.add_middleware(
 
 app.include_router(router)
 
-app.add_api_websocket_route("/ws/{symbol}", websocket_endpoint)
+# app.add_api_websocket_route("/ws/{symbol}", websocket_endpoint)
 
 
 @asynccontextmanager
