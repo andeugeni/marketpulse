@@ -246,7 +246,7 @@ async def get_posts(symbol: str, request: Request, limit: int = 20):
 
         rows = await conn.fetch(
             """
-            SELECT id, symbol, source, title, body, score, post_id, captured_at
+            SELECT id, symbol, source, title, body, score, link, post_id, captured_at
             FROM sentiment_records
             WHERE symbol = $1
             ORDER BY captured_at DESC
