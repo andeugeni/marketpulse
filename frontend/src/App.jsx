@@ -1,22 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import TickerSelector from "./components/TickerSelector";
 import StatCards from "./components/StatCards";
 import PriceChart from "./components/PriceChart";
 import SentimentFeed from "./components/SentimentFeed";
-import { usePriceData } from "./hooks/usePriceData";
-import { useSentimentData } from "./hooks/useSentimentData";
 import { useWebSocket } from "./hooks/useWebSocket";
+
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 export default function App() {
   const [activeTicker, setActiveTicker] = useState("RDDT");
+  const [prices, setPrices] = useState([]);
+  const [sentiment, setSentiment] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const { prices, appendPrice } = usePriceData(activeTicker);
-  const { sentiment } = useSentimentData(activeTicker);
+  useEffect(() => {
+    if (!activeTicker) return;
+    setLoading(true);
 
-  // Wire WebSocket live updates into price state
+    const to = new Date();
+    const from = new Date();
+    from.setDate(from.getDate() - 7);
+
+    // Fire all three requests simultaneously — one Supabase wakeup instead of three
+    Promise.all([
+      axios.get(`${BASE_URL}/tickers/${activeTicker}/prices`, {
+        params: { limit: 500, from: from.toISOString(), to: to.toISOString() }
+      }),
+      axios.get(`${BASE_URL}/tickers/${activeTicker}/sentiment`, {
+        params: { limit: 168, from: from.toISOString(), to: to.toISOString() }
+      }),
+      axios.get(`${BASE_URL}/tickers/${activeTicker}/posts?limit=20`),
+    ])
+    .then(([pricesRes, sentimentRes, postsRes]) => {
+      setPrices([...pricesRes.data].reverse());
+      setSentiment([...sentimentRes.data].reverse());
+      setPosts(postsRes.data);
+    })
+    .catch(err => console.error("Data fetch error:", err))
+    .finally(() => setLoading(false));
+
+  }, [activeTicker]);
+
+  const appendPrice = (record) => {
+    setPrices(prev => [...prev.slice(-499), record]);
+  };
+
   useWebSocket(activeTicker, {
     onPrice: (record) => appendPrice(record),
-    onSentiment: () => {},  // sentiment feed coming soon
+    onSentiment: () => {},
   });
 
   return (
@@ -24,9 +57,15 @@ export default function App() {
 
       {/* Header */}
       <div style={{
-        borderBottom: "1px solid #21262d", padding: "16px 32px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        position: "sticky", top: 0, background: "#0d1117", zIndex: 10
+        borderBottom: "1px solid #21262d",
+        padding: "16px 32px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        position: "sticky",
+        top: 0,
+        background: "#0d1117",
+        zIndex: 10
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#00e5a0" }} />
@@ -55,10 +94,45 @@ export default function App() {
           </span>
         </div>
 
-        <StatCards prices={prices} sentiment={sentiment} />
-        <PriceChart prices={prices} sentiment={sentiment} />
-        <SentimentFeed symbol={activeTicker} />
-
+        {loading ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {/* Stat cards skeleton */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+              {[1,2,3,4].map(i => (
+                <div key={i} style={{
+                  background: "#161b22",
+                  border: "1px solid #21262d",
+                  borderRadius: 8,
+                  padding: "16px 20px",
+                  height: 80,
+                  animation: "pulse 1.5s infinite",
+                }} />
+              ))}
+            </div>
+            {/* Chart skeleton */}
+            <div style={{
+              background: "#161b22",
+              border: "1px solid #21262d",
+              borderRadius: 8,
+              height: 340,
+              animation: "pulse 1.5s infinite",
+            }} />
+            {/* Feed skeleton */}
+            <div style={{
+              background: "#161b22",
+              border: "1px solid #21262d",
+              borderRadius: 8,
+              height: 200,
+              animation: "pulse 1.5s infinite",
+            }} />
+          </div>
+        ) : (
+          <>
+            <StatCards prices={prices} sentiment={sentiment} />
+            <PriceChart prices={prices} sentiment={sentiment} />
+            <SentimentFeed symbol={activeTicker} posts={posts} />
+          </>
+        )}
       </div>
     </div>
   );
