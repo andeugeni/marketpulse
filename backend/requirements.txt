@@ -5,3 +5,5 @@ asyncpg
 redis
 python-dotenv
 vaderSentiment
+uvicorn[standard]
+websockets
