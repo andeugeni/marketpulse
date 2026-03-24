@@ -80,7 +80,7 @@ async def run():
             for symbol in TICKERS:
                 record = await fetch_quote(client, symbol)
                 if record:
-                    await redis.xadd(STREAM_NAME, {"data": json.dumps(record)}, maxlen=1000, approximate=True)
+                    await redis.xadd(STREAM_NAME, {"data": json.dumps(record)}, maxlen=500, approximate=True)
                     print(f"[{symbol}] Published to stream: ${record['price']}")
                 await asyncio.sleep(1)
 

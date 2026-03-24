@@ -143,7 +143,7 @@ async def run():
             # Publish all collected posts to stream
             published = 0
             for record in all_records:
-                await redis.xadd(STREAM_NAME, {"data": json.dumps(record)}, maxlen=5000, approximate=True)
+                await redis.xadd(STREAM_NAME, {"data": json.dumps(record)}, maxlen=200, approximate=True)
                 published += 1
 
             print(f"Published {published} total posts to stream")
