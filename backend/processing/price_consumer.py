@@ -63,6 +63,7 @@ async def run():
         )
 
         if not messages:
+            await asyncio.sleep(3600)  # chill for a minute when nothing to process
             continue
 
         for stream, records in messages:
