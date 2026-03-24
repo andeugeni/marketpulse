@@ -14,7 +14,7 @@ if os.path.exists(env_path):
 API_KEY = os.getenv("FINNHUB_API_KEY")
 REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379")
 STREAM_NAME = "marketpulse:prices"
-TICKERS = ["RDDT", "RKLB", "GOOGL", "SMCI"]
+TICKERS = ["RDDT", "RKLB", "GOOG", "SMCI"]
 POLL_INTERVAL_SECONDS = 300  # every 5 minutes instead of 60 seconds
 
 
