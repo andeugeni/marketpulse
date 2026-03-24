@@ -59,11 +59,11 @@ async def run():
             consumername=CONSUMER_NAME,
             streams={STREAM_NAME: ">"},
             count=10,
-            block=2000,  # block for 2 seconds if stream is empty
+            block=60000,  # block for a minute if stream is empty
         )
 
         if not messages:
-            await asyncio.sleep(3600)  # chill for a minute when nothing to process
+            await asyncio.sleep(3600)  # chill for an hour when nothing to process
             continue
 
         for stream, records in messages:
