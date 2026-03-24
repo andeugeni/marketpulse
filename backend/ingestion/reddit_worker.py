@@ -45,7 +45,7 @@ async def fetch_general_posts(
         "subreddit": subreddit,
         "selftext": symbol, 
         "limit": 25,
-        "after": "30day",
+        "after": "1day",
     }
     try:
         response = await client.get(BASE_URL, params=params, timeout=10)

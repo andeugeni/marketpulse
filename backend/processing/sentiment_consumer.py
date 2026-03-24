@@ -74,6 +74,12 @@ async def run():
 
     print("Price consumer started. Awaiting messages")
 
+    await redis.xautoclaim(
+        STREAM_NAME, GROUP_NAME, CONSUMER_NAME,
+        min_idle_time=0, start_id="0-0", count=1000
+    )
+    print("Reclaimed pending messages")
+
     while True:
         messages = await redis.xreadgroup(
             groupname=GROUP_NAME,
