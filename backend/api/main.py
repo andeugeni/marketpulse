@@ -43,7 +43,6 @@ app.include_router(router)
 
 # app.add_api_websocket_route("/ws/{symbol}", websocket_endpoint)
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.pool = await asyncpg.create_pool(

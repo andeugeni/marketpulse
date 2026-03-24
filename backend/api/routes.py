@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect, Query
 from api.models import TickerResponse, PriceResponse, SentimentResponse, SummaryResponse, PostResponse
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 # Design decision: APIRouter instead of registering routes
@@ -152,10 +152,26 @@ async def get_summary(symbol: str, request: Request):
         "sentiment_post_count": sentiment["post_count"] or 0,
     }
 
+def is_market_hours() -> bool:
+    now = datetime.now(timezone.utc)
+    et_hour = (now.hour - 4) % 24
+    et_minute = now.minute
+    weekday = now.weekday()
+    if weekday >= 5:
+        return False
+    market_open = et_hour > 9 or (et_hour == 9 and et_minute >= 30)
+    market_close = et_hour < 16
+    return market_open and market_close
+
 @router.websocket("/ws/{symbol}")
 async def websocket_endpoint(websocket: WebSocket, symbol: str):
     await websocket.accept()
     pool = websocket.app.state.pool
+    
+    if not is_market_hours():
+        await websocket.send_json({"type": "closed", "message": "Market is closed"})
+        await websocket.close()
+        return
 
     symbol = symbol.upper()
 
