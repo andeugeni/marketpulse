@@ -77,6 +77,7 @@ async def run():
                     print(f"Error processing message {msg_id}: {e}")
 
         if not messages:
+            print(f"OOH I'M SLEEPY (10min)")
             await asyncio.sleep(600)  # chill for ten minutes when nothing to process
             continue
 
