@@ -75,6 +75,10 @@ async def run():
                 except Exception as e:
                     print(f"Error processing message {msg_id}: {e}")
 
+        if not messages:
+            await asyncio.sleep(60)  # chill for a minute when nothing to process
+            continue
+
 if __name__ == "__main__":
     asyncio.run(run())
 

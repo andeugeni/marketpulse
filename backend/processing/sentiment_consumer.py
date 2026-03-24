@@ -129,3 +129,7 @@ async def run():
             print(f"Stream read error: {e}")
             await asyncio.sleep(5)
             continue
+
+        if not messages:
+            await asyncio.sleep(60)  # chill for a minute when nothing to process
+            continue
