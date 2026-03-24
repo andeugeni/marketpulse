@@ -68,40 +68,64 @@ def str_to_datetime(date_string: str):
 
 async def run():
     redis = await aioredis.from_url(REDIS_URL)
-    pool = await asyncpg.create_pool(POSTGRES_URL, statement_cache_size=0)
+
+    # Retry pool creation — handles Supabase free tier cold starts
+    pool = None
+    for attempt in range(5):
+        try:
+            pool = await asyncpg.create_pool(
+                POSTGRES_URL,
+                statement_cache_size=0,
+                timeout=30,
+            )
+            print("Database pool created")
+            break
+        except Exception as e:
+            print(f"Pool creation attempt {attempt + 1} failed: {e}")
+            await asyncio.sleep(5)
+
+    if not pool:
+        print("Failed to create database pool after 5 attempts — exiting")
+        return
 
     await ensure_consumer_group(redis)
 
-    print("Price consumer started. Awaiting messages")
+    # Drain stuck pending messages
+    try:
+        await redis.xautoclaim(
+            STREAM_NAME, GROUP_NAME, CONSUMER_NAME,
+            min_idle_time=0, start_id="0-0", count=1000
+        )
+        print("Cleared pending message backlog")
+    except Exception as e:
+        print(f"XAUTOCLAIM error (non-fatal): {e}")
 
-    await redis.xautoclaim(
-        STREAM_NAME, GROUP_NAME, CONSUMER_NAME,
-        min_idle_time=0, start_id="0-0", count=1000
-    )
-    print("Reclaimed pending messages")
+    print("Sentiment consumer started. Awaiting messages")
 
     while True:
-        messages = await redis.xreadgroup(
-            groupname=GROUP_NAME,
-            consumername=CONSUMER_NAME,
-            streams={STREAM_NAME: ">"},
-            count=10,
-            block=2000,  # block for 2 seconds if stream is empty
-        )
+        try:
+            messages = await redis.xreadgroup(
+                groupname=GROUP_NAME,
+                consumername=CONSUMER_NAME,
+                streams={STREAM_NAME: ">"},
+                count=10,
+                block=2000,
+            )
 
-        if not messages:
+            if not messages:
+                continue
+
+            for stream, records in messages:
+                for msg_id, fields in records:
+                    try:
+                        record = json.loads(fields[b"data"])
+                        await write_to_postgres(pool, record)
+                        await redis.xack(STREAM_NAME, GROUP_NAME, msg_id)
+                        print(f"[{record['symbol']}] Written: {record.get('title', '')[:60]}")
+                    except Exception as e:
+                        print(f"Error processing message {msg_id}: {e}")
+
+        except Exception as e:
+            print(f"Stream read error: {e}")
+            await asyncio.sleep(5)
             continue
-
-        for stream, records in messages:
-            for msg_id, fields in records:
-                try:
-                    record = json.loads(fields[b"data"])
-                    await write_to_postgres(pool, record)
-                    await redis.xack(STREAM_NAME, GROUP_NAME, msg_id)
-                    print(f"[{record['symbol']}] Written to Postgres: ${record['title']}")
-                except Exception as e:
-                    print(f"Error processing message {msg_id}: {e}")
-
-if __name__ == "__main__":
-    asyncio.run(run())
-
