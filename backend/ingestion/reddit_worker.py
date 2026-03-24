@@ -83,7 +83,7 @@ async def fetch_ticker_subreddit_posts(
     params = {
         "subreddit": subreddit,
         "limit": 25,
-        "after": "30day",
+        "after": "6hour",
     }
     try:
         response = await client.get(BASE_URL, params=params, timeout=10)
