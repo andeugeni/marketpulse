@@ -59,12 +59,12 @@ async def run():
             consumername=CONSUMER_NAME,
             streams={STREAM_NAME: ">"},
             count=10,
-            block=60000,  # block for a minute if stream is empty
+            block=300000,  # block for a minute if stream is empty
         )
 
-        if not messages:
-            await asyncio.sleep(3600)  # chill for an hour when nothing to process
-            continue
+        # if not messages:
+        #     await asyncio.sleep(3600)  # chill for an hour when nothing to process
+        #     continue
 
         for stream, records in messages:
             for msg_id, fields in records:
@@ -77,7 +77,7 @@ async def run():
                     print(f"Error processing message {msg_id}: {e}")
 
         if not messages:
-            await asyncio.sleep(60)  # chill for a minute when nothing to process
+            await asyncio.sleep(600)  # chill for ten minutes when nothing to process
             continue
 
 if __name__ == "__main__":
