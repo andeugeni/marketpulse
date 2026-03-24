@@ -13,7 +13,7 @@ API_KEY = os.getenv("FINNHUB_API_KEY")
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 STREAM_NAME = "marketpulse:prices"
 TICKERS = ["RDDT", "RKLB", "GOOG", "SMCI"]
-POLL_INTERVAL_SECONDS = 30
+POLL_INTERVAL_SECONDS = 300
 
 
 print(f"REDIS_URL loaded as: {REDIS_URL}")
