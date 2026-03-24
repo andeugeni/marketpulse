@@ -13,7 +13,7 @@ if os.path.exists(env_path):
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379")
 STREAM_NAME = "marketpulse:reddit_sentiment"
-POLL_INTERVAL_SECONDS = 3600
+POLL_INTERVAL_SECONDS = 21600
 
 # General sentiment subreddits — search by ticker symbol
 GENERAL_SUBREDDITS = ["wallstreetbets", "investing", "stocks", "thetagang", "ValueInvesting"]
@@ -45,7 +45,7 @@ async def fetch_general_posts(
         "subreddit": subreddit,
         "selftext": symbol, 
         "limit": 25,
-        "after": "1day",
+        "after": "6hour",
     }
     try:
         response = await client.get(BASE_URL, params=params, timeout=10)
@@ -143,7 +143,7 @@ async def run():
             # Publish all collected posts to stream
             published = 0
             for record in all_records:
-                await redis.xadd(STREAM_NAME, {"data": json.dumps(record)})
+                await redis.xadd(STREAM_NAME, {"data": json.dumps(record)}, maxlen=5000, approximate=True)
                 published += 1
 
             print(f"Published {published} total posts to stream")

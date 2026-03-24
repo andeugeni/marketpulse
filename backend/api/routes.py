@@ -228,7 +228,7 @@ async def websocket_endpoint(websocket: WebSocket, symbol: str):
                 })
                 last_sentiment_id = row["id"]
 
-            await asyncio.sleep(5)
+            await asyncio.sleep(60)
 
     except WebSocketDisconnect:
         print(f"[{symbol}] WebSocket client disconnected")
