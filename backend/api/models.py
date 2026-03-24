@@ -36,7 +36,7 @@ class PostResponse(BaseModel):
     source: str
     title: Optional[str]
     body: str
-    link: str
+    link: Optional[str]
     score: float
     post_id: str
     captured_at: datetime
