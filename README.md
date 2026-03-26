@@ -53,11 +53,11 @@ Real-time stock price and sentiment tracking dashboard powered by a streaming da
 
 **Environment variables:**
 
-`POSTGRES_URL=  
-REDIS_URL=  
-FINNHUB_API_KEY=  
-GITHUB_TOKEN=  
-UPSTASH_REDIS_REST_URL=  
+`POSTGRES_URL=  \
+REDIS_URL=  \
+FINNHUB_API_KEY=  \
+GITHUB_TOKEN=  \
+UPSTASH_REDIS_REST_URL=  \
 SUPABASE_POSTGRES_REST_URL=`
 
 bash
