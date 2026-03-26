@@ -15,7 +15,7 @@ API_KEY = os.getenv("FINNHUB_API_KEY")
 REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379")
 STREAM_NAME = "marketpulse:prices"
 TICKERS = ["RDDT", "RKLB", "GOOG", "SMCI"]
-POLL_INTERVAL_SECONDS = 240  # every 4 minutes instead of 60 seconds
+POLL_INTERVAL_SECONDS = 120  # every 2 minutes instead of 60 seconds
 
 
 def is_market_hours() -> bool:
