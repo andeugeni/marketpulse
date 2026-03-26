@@ -77,4 +77,4 @@ cd frontend && npm run dev
 ## Roadmap
 
 - **NewsAPI as institutional sentiment source** — Reddit reflects retail sentiment, while news outlets reflect institutional reaction. The divergence between these two signals is the interesting insight. I was inspired by the SMCI/NVIDIA GPU export story, in which Reddit largely called it an overreaction, yet institutional coverage was notably more doomer. Overlaying both signals on the same chart would make that dichotomy visible.
-- **StatCards — sentiment trend direction, post volume indicators
+- **StatCards** — sentiment trend direction, post volume indicators
