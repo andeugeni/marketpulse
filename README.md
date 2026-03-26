@@ -8,7 +8,7 @@ Real-time stock price and sentiment tracking dashboard powered by a streaming da
 
 ## Architecture
 
-![Architecture Diagram](docs/diagram.png)
+![Architecture Diagram](assets/marketpulsediagram.png)
 
 ---
 
