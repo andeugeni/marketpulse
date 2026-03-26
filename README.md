@@ -58,7 +58,8 @@ REDIS_URL=
 FINNHUB_API_KEY=  
 GITHUB_TOKEN=  
 UPSTASH_REDIS_REST_URL=  
-SUPABASE_POSTGRES_REST_URL=````
+SUPABASE_POSTGRES_REST_URL=
+````
 
 bash
 
@@ -68,7 +69,8 @@ python reddit_worker.py
 python price_consumer.py # start processing  
 python sentiment_consumer.py  
 uvicorn api.main:app     # start API  
-cd frontend && npm run dev````
+cd frontend && npm run dev
+````
 
 ---
 
