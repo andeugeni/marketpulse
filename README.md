@@ -2,7 +2,7 @@
 
 Real-time stock price and sentiment tracking dashboard powered by a streaming data pipeline.
 
-[Live Demo](https://www.notion.so/your-vercel-url) · Python · FastAPI · Redis Streams · PostgreSQL · React
+[Live Demo](https://marketpulse-nine-lovat.vercel.app/) · Python · FastAPI · Redis Streams · PostgreSQL · React
 
 ---
 
