@@ -20,19 +20,13 @@ tell application "Terminal"
     -- Window 3: Price Consumer
     do script "cd '$BACKEND' && source .venv/bin/activate && python3 -m processing.price_consumer"
     
-    -- Window 4: Reddit Worker
-    do script "cd '$BACKEND' && source .venv/bin/activate && python3 -m ingestion.reddit_worker"
-    
-    -- Window 5: Sentiment Consumer
-    do script "cd '$BACKEND' && source .venv/bin/activate && python3 -m processing.sentiment_consumer"
-    
-    -- Window 6: NewsAPI Worker
-    do script "cd '$BACKEND' && source .venv/bin/activate && python3 -m ingestion.newsapi_worker"
+    -- Window 4: Ingestion Worker
+    do script "cd '$BACKEND' && source .venv/bin/activate && python3 -m ingestion.ingestion_worker"
     
     -- Window 5: NewsAPI Consumer
-    do script "cd '$BACKEND' && source .venv/bin/activate && python3 -m processing.newsapi_consumer"
+    do script "cd '$BACKEND' && source .venv/bin/activate && python3 -m processing.combined_consumer"
 
-    -- Window 7: Frontend
+    -- Window 6: Frontend
     do script "cd '$ROOT/frontend' && nvm use 22 && npm run dev"
 end tell
 EOF
