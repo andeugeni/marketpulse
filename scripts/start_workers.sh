@@ -26,7 +26,13 @@ tell application "Terminal"
     -- Window 5: Sentiment Consumer
     do script "cd '$BACKEND' && source .venv/bin/activate && python3 -m processing.sentiment_consumer"
     
-    -- Window 6: Frontend
+    -- Window 6: NewsAPI Worker
+    do script "cd '$BACKEND' && source .venv/bin/activate && python3 -m ingestion.newsapi_worker"
+    
+    -- Window 5: NewsAPI Consumer
+    do script "cd '$BACKEND' && source .venv/bin/activate && python3 -m processing.newsapi_consumer"
+
+    -- Window 7: Frontend
     do script "cd '$ROOT/frontend' && nvm use 22 && npm run dev"
 end tell
 EOF

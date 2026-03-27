@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import TickerSelector from "./components/TickerSelector";
 import StatCards from "./components/StatCards";
@@ -42,6 +42,8 @@ export default function App() {
   const [prices, setPrices] = useState([]);
   const [sentiment, setSentiment] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [redditPosts, setRedditPosts] = useState([]);
+  const [newsPosts, setNewsPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -59,14 +61,16 @@ export default function App() {
         params: { limit: 500, from: from.toISOString(), to: to.toISOString() }
       }),
       axios.get(`${BASE_URL}/tickers/${activeTicker}/sentiment`, {
-        params: { limit: 24, from: sentimentFrom.toISOString(), to: new Date().toISOString() }
+        params: { limit: 100, from: sentimentFrom.toISOString(), to: new Date().toISOString() }
       }),
-      axios.get(`${BASE_URL}/tickers/${activeTicker}/posts?limit=20`),
+      axios.get(`${BASE_URL}/tickers/${activeTicker}/posts?limit=30`),
     ])
     .then(([pricesRes, sentimentRes, postsRes]) => {
       setPrices([...pricesRes.data].reverse());
       setSentiment([...sentimentRes.data].reverse());
       setPosts(postsRes.data);
+      setRedditPosts(postsRes.data.filter(p => p.source !== "NewsAPI"));
+      setNewsPosts(postsRes.data.filter(p => p.source === "NewsAPI"));
     })
     .catch(err => console.error("Data fetch error:", err))
     .finally(() => setLoading(false));
@@ -77,8 +81,10 @@ export default function App() {
     setPrices(prev => [...prev.slice(-499), record]);
   };
 
+  const handlePrice = useCallback((record) => appendPrice(record), [appendPrice]);
+
   useWebSocket(activeTicker, {
-    onPrice: (record) => appendPrice(record),
+    onPrice: handlePrice,
     onSentiment: () => {},
   });
 
@@ -160,7 +166,14 @@ export default function App() {
           <>
             <StatCards prices={prices} sentiment={sentiment} />
             <PriceChart prices={prices} sentiment={sentiment} />
-            <SentimentFeed symbol={activeTicker} posts={posts} />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, width: "100%" }}>
+              <div style={{ minWidth: 0 }}>
+                <SentimentFeed symbol={activeTicker} posts={redditPosts} />
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <SentimentFeed symbol={activeTicker} posts={newsPosts} />
+              </div>
+            </div>
           </>
         )}
       </div>

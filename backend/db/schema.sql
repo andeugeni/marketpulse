@@ -36,3 +36,4 @@ CREATE INDEX IF NOT EXISTS idx_sentiment_symbol_time
     ON sentiment_records(symbol, captured_at DESC);
 
 ALTER TABLE sentiment_records ADD COLUMN IF NOT EXISTS title TEXT;
+ALTER TABLE sentiment_records ADD COLUMN IF NOT EXISTS link TEXT;

@@ -106,7 +106,7 @@ export default function SentimentFeed({ symbol, posts = [] }) {
                     color: "#484f58",
                     fontFamily: "monospace"
                   }}>
-                    r/{post.source}
+                    {post.source === "NewsAPI" ? "NewsAPI" : `r/${post.source}`}
                   </span>
                 </div>
 

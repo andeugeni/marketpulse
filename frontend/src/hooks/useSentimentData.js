@@ -36,5 +36,8 @@ export function useSentimentData(symbol) {
 
   }, [symbol]);
 
-  return { sentiment, loading };
+  const redditSentiment = sentiment.filter(r => r.source !== "NewsAPI");
+  const newsSentiment = sentiment.filter(r => r.source === "NewsAPI");
+
+  return { redditSentiment, newsSentiment, loading };
 }

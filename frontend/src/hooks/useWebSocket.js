@@ -23,5 +23,5 @@ export function useWebSocket(symbol, { onPrice, onSentiment }) {
     ws.onclose = () => console.log(`[${symbol}] WebSocket disconnected`);
 
     return () => ws.close();
-  }, [symbol]);
+  }, [symbol, onPrice, onSentiment]);
 }
