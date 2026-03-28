@@ -47,11 +47,16 @@ function mergeSentiment(redditSentiment, newsSentiment) {
 
   for (const s of redditSentiment) {
     map.set(s.hour, {
-      time: new Date(s.hour).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      hour: s.hour,
-      redditSentiment: parseFloat(s.avg_score),
-      newsSentiment: null,
-    });
+        time: new Date(s.hour).toLocaleString([], {
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        hour: s.hour,
+        redditSentiment: null,
+        newsSentiment: parseFloat(s.avg_score),
+      });
   }
 
   // Shift news timestamps forward 24h to align with today's price data
