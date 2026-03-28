@@ -29,10 +29,10 @@ print(f"REDIS_URL loaded as: {REDIS_URL}")
 # ── Reddit ──────────────────────────────────────────────────────────────────
 
 SUBREDDITS = {
-    "RDDT": "redditstock",
-    "RKLB": "RocketLab",
-    "GOOG": "google",
-    "SMCI": "supermicro",
+    "RKLB": ["RKLB", "RKLBInvestors"],
+    "RDDT": ["RDDT", "redditstock"],
+    "SMCI": ["SMCIDiscussion"],
+    "GOOG": ["GOOG_Stock"],
 }
 
 async def fetch_reddit(client: httpx.AsyncClient, symbol: str) -> list:
