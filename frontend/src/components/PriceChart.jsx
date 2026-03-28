@@ -105,7 +105,9 @@ export default function PriceChart({ prices, redditSentiment, newsSentiment }) {
   );
 
   const hasSentiment = sentimentData.length > 0;
-  const priceTickInterval = Math.max(1, Math.floor(priceData.length / 12));
+  const priceTickInterval = Math.max(1, Math.floor(priceData.length / 8));
+  const sentimentTickInterval = Math.max(1, Math.floor(priceData.length / 8));
+
   const minPrice = Math.min(...priceData.map(p => p.price));
   const maxPrice = Math.max(...priceData.map(p => p.price));
   const pricePadding = (maxPrice - minPrice) * 0.1;
@@ -200,7 +202,7 @@ export default function PriceChart({ prices, redditSentiment, newsSentiment }) {
                     tick={{ fontSize: 9, fill: "#8b949e", fontFamily: "monospace" }}
                     tickLine={false}
                     axisLine={{ stroke: "#21262d" }}
-                    interval={0}
+                    interval={sentimentTickInterval}
                   />
                   <YAxis
                     tick={{ fontSize: 9, fill: "#8b949e", fontFamily: "monospace" }}
