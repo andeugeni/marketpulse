@@ -70,7 +70,7 @@ function mergeSentiment(redditSentiment, newsSentiment) {
       existing.newsSentiment = parseFloat(s.avg_score);
     } else {
       map.set(s.hour, {
-        time: new Date(p.captured_at).toLocaleString([], {
+        time: new Date(s.captured_at).toLocaleString([], {
           month: "short",
           day: "numeric",
           hour: "2-digit",
