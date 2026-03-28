@@ -72,6 +72,10 @@ export default function App() {
       setSentiment([...sentimentRes.data].reverse());
       setRedditSentiment([...sentimentRes.data].reverse().filter(p => p.source !== "NewsAPI"));
       setNewsSentiment([...sentimentRes.data].reverse().filter(p => p.source === "NewsAPI"));
+      console.log("REDDIT SENTIMENT == ");
+      console.log(redditSentiment);
+      console.log("NEWS SENTIMENT == ");
+      console.log(newsSentiment);
       setPosts(postsRes.data);
       setRedditPosts(postsRes.data.filter(p => p.source !== "NewsAPI"));
       setNewsPosts(postsRes.data.filter(p => p.source === "NewsAPI"));
