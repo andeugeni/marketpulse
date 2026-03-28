@@ -44,6 +44,8 @@ export default function App() {
   const [posts, setPosts] = useState([]);
   const [redditPosts, setRedditPosts] = useState([]);
   const [newsPosts, setNewsPosts] = useState([]);
+  const [redditSentiment, setRedditSentiment] = useState([]);
+  const [newsSentiment, setNewsSentiment] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -68,6 +70,8 @@ export default function App() {
     .then(([pricesRes, sentimentRes, postsRes]) => {
       setPrices([...pricesRes.data].reverse());
       setSentiment([...sentimentRes.data].reverse());
+      setRedditSentiment([...sentimentRes.data].reverse().filter(p => p.source !== "NewsAPI"));
+      setNewsSentiment([...sentimentRes.data].reverse().filter(p => p.source === "NewsAPI"));
       setPosts(postsRes.data);
       setRedditPosts(postsRes.data.filter(p => p.source !== "NewsAPI"));
       setNewsPosts(postsRes.data.filter(p => p.source === "NewsAPI"));
@@ -165,7 +169,7 @@ export default function App() {
         ) : (
           <>
             <StatCards prices={prices} sentiment={sentiment} />
-            <PriceChart prices={prices} sentiment={sentiment} />
+            <PriceChart prices={prices} redditSentiment={redditSentiment} newsSentiment={newsSentiment}/>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, width: "100%" }}>
               <div style={{ minWidth: 0 }}>
                 <SentimentFeed symbol={activeTicker} posts={redditPosts} />
