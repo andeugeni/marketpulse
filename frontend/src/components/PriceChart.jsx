@@ -83,10 +83,12 @@ function mergeSentiment(redditSentiment, newsSentiment) {
 }
 
 export default function PriceChart({ prices, redditSentiment, newsSentiment }) {
-
   const priceData = prices.map(p => ({
-    time: new Date(p.captured_at).toLocaleTimeString([], {
-      hour: "2-digit", minute: "2-digit", second: "2-digit"
+    time: new Date(p.captured_at).toLocaleString([], {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     }),
     price: parseFloat(p.price),
   }));
@@ -98,7 +100,7 @@ export default function PriceChart({ prices, redditSentiment, newsSentiment }) {
   );
 
   const hasSentiment = sentimentData.length > 0;
-  const priceTickInterval = Math.max(1, Math.floor(priceData.length / 8));
+  const priceTickInterval = Math.max(1, Math.floor(priceData.length / 10));
   const minPrice = Math.min(...priceData.map(p => p.price));
   const maxPrice = Math.max(...priceData.map(p => p.price));
   const pricePadding = (maxPrice - minPrice) * 0.1;
