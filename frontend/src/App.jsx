@@ -10,29 +10,25 @@ const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 function getLastTradingDay() {
   const now = new Date();
-  const day = now.getDay(); // 0=Sun, 1=Mon ... 6=Sat
+  const day = now.getDay();
 
-  // If weekend, roll back to Friday
   const daysBack = day === 0 ? 2 : day === 6 ? 1 : 0;
   const tradingDay = new Date(now);
   tradingDay.setDate(now.getDate() - daysBack);
 
-  // Market open 9:30 AM ET, close 4:00 PM ET
-  // We use local time here — acceptable for a resume project
   const from = new Date(tradingDay);
   from.setHours(6, 30, 0, 0);
+  from.setDate(from.getDate() - 2); // ← look back 2 extra days
 
   const to = new Date(tradingDay);
   to.setHours(13, 0, 0, 0);
 
-  // If today is a weekday but before market open, use previous trading day
   if (daysBack === 0 && now < from) {
-    const prevDay = now.getDay() === 1 ? 3 : 1; // Monday → Friday, else yesterday
+    const prevDay = now.getDay() === 1 ? 3 : 1;
     from.setDate(from.getDate() - prevDay);
     to.setDate(to.getDate() - prevDay);
   }
 
-  // If today is a weekday and market is still open, use now as the end
   const marketOpen = daysBack === 0 && now >= from && now <= to;
   return { from, to: marketOpen ? now : to };
 }
