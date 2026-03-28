@@ -59,7 +59,9 @@ function mergeSentiment(redditSentiment, newsSentiment) {
     ...s,
     hour: new Date(new Date(s.hour).getTime() + 24 * 60 * 60 * 1000).toISOString(),
   }));
-
+  console.log("PRICE CHART STUFF ===")
+  console.log(redditSentiment);
+  console.log(newsSentiment);
   console.log(shiftedNews);
 
   for (const s of shiftedNews) {
