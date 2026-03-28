@@ -105,8 +105,8 @@ export default function PriceChart({ prices, redditSentiment, newsSentiment }) {
   );
 
   const hasSentiment = sentimentData.length > 0;
-  const priceTickInterval = Math.max(1, Math.floor(priceData.length / 8));
-  const sentimentTickInterval = Math.max(1, Math.floor(sentimentData.length / 8));
+  const priceTickInterval = Math.max(3, Math.floor(priceData.length / 8));
+  const sentimentTickInterval = Math.max(3, Math.floor(sentimentData.length / 6));
 
   const minPrice = Math.min(...priceData.map(p => p.price));
   const maxPrice = Math.max(...priceData.map(p => p.price));
