@@ -43,7 +43,6 @@ async def fetch_reddit(client: httpx.AsyncClient, symbol: str) -> list:
         "selftext": symbol, 
         "limit": 25,
         "after": "6hour",
-        "sort": "new",
     }
     try:
         response = await client.get(url, params=params, timeout=10)
