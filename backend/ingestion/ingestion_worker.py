@@ -101,7 +101,7 @@ async def fetch_news(client: httpx.AsyncClient, symbol: str) -> list:
     params = {
         "q": symbol,
         "apiKey": NEWSAPI_KEY,
-        "pageSize": 10,
+        "pageSize": 67,
         "language": "en",
     }
     try:
