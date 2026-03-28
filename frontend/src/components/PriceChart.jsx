@@ -60,7 +60,7 @@ function mergeSentiment(redditSentiment, newsSentiment) {
     hour: new Date(new Date(s.hour).getTime() + 24 * 60 * 60 * 1000).toISOString(),
   }));
 
-  for (const s of newsSentiment) {
+  for (const s of shiftedNews) {
     const existing = map.get(s.hour);
     if (existing) {
       existing.newsSentiment = parseFloat(s.avg_score);
