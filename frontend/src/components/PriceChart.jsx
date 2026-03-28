@@ -54,8 +54,8 @@ function mergeSentiment(redditSentiment, newsSentiment) {
           minute: "2-digit",
         }),
         hour: s.hour,
-        redditSentiment: null,
-        newsSentiment: parseFloat(s.avg_score),
+        redditSentiment: parseFloat(s.avg_score),
+        newsSentiment: null,
       });
   }
 
