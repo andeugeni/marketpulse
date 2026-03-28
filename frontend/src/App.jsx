@@ -70,8 +70,8 @@ export default function App() {
     .then(([pricesRes, sentimentRes, postsRes]) => {
       setPrices([...pricesRes.data].reverse());
       setSentiment([...sentimentRes.data].reverse());
-      setRedditSentiment([...sentimentRes.data].reverse().filter(p => p.source !== "NewsAPI"));
-      setNewsSentiment([...sentimentRes.data].reverse().filter(p => p.source === "NewsAPI"));
+      setRedditSentiment([...sentimentRes.data].filter(p => p.source !== "NewsAPI"));
+      setNewsSentiment([...sentimentRes.data].filter(p => p.source === "NewsAPI"));
       console.log("REDDIT SENTIMENT == ");
       console.log(redditSentiment);
       console.log("NEWS SENTIMENT == ");
