@@ -40,7 +40,9 @@ async def fetch_reddit(client: httpx.AsyncClient, symbol: str) -> list:
     url = f"https://arctic-shift.photon-reddit.com/api/posts/search"
     params = {
         "subreddit": subreddit,
-        "limit": 10,
+        "selftext": symbol, 
+        "limit": 25,
+        "after": "6hour",
         "sort": "new",
     }
     try:
