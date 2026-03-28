@@ -14,8 +14,8 @@ Real-time stock price and sentiment tracking dashboard powered by a streaming da
 
 ## Data Pipeline
 
-- **Ingestion:** Two workers pull from external sources: `reddit_worker` queries several subreddits via the Arctic Shift API for posts referencing tracked tickers every 6 hours; `price_worker` polls the Finnhub API for price quotes every 5 minutes during market hours. Both parse relevant fields and publish JSON payloads to a Redis Stream hosted on Upstash.
-- **Processing:** `price_consumer` reads from the prices stream and writes snapshots to PostgreSQL. `sentiment_consumer` reads from the sentiment stream, scores each post using VADER, and writes the result to PostgreSQL.
+- **Ingestion:** Two workers pull from external sources: `reddit_worker` queries several subreddits via the Arctic Shift API for posts referencing tracked tickers every 6 hours; `newsapi_worker` polls the NewsAPI API for news stories related to these stocks; `price_worker` polls the Finnhub API for price quotes every 5 minutes during market hours. `newsapi_worker` and `reddit_worker` are combined into `ingestion_worker` to not violate my limited tier on Railway. Both parse relevant fields and publish JSON payloads to a Redis Stream hosted on Upstash.
+- **Processing:** `price_consumer` reads from the prices stream and writes snapshots to PostgreSQL. `sentiment_consumer` reads from the sentiment stream, scores each post using VADER, and writes the result to PostgreSQL. `news_consumer` also reads from the sentiment stream and writes to PostgreSQL. The last two are combined into combined_consumer, once again, to not need to pay extra for my Railway subscription.
 - **Storage:** Supabase-hosted PostgreSQL. Two core tables: `price_snapshots` and `sentiment_records`, both indexed on `(symbol, captured_at DESC)` for efficient time-series queries.
 - **Serving:** FastAPI exposes REST endpoints for historical price and sentiment data, and a WebSocket endpoint for live price updates during market hours. All services in the ingestion and processing layers are deployed on Railway.
 - **Frontend:** React/Vite app hosted on Vercel. Displays a dual-panel chart (price area chart + hourly sentiment bar chart) alongside stat cards and a live sentiment feed. Consumes the FastAPI REST and WebSocket endpoints.
@@ -47,7 +47,7 @@ Real-time stock price and sentiment tracking dashboard powered by a streaming da
 
 ## Local Setup
 
-**Prerequisites:** Python 3.13, Node 22, Docker Desktop (for local development)
+**Prerequisites:** Python 3.14, Node 22, Docker Desktop (for local development)
 
 **External services required:** Upstash (Redis), Supabase (PostgreSQL), Finnhub API key
 
@@ -74,7 +74,6 @@ cd frontend && npm run dev
 
 ---
 
-## Roadmap
+## What Would I Do Later?
 
-- **NewsAPI as institutional sentiment source** — Reddit reflects retail sentiment, while news outlets reflect institutional reaction. The divergence between these two signals is the interesting insight. I was inspired by the SMCI/NVIDIA GPU export story, in which Reddit largely called it an overreaction, yet institutional coverage was notably more doomer. Overlaying both signals on the same chart would make that dichotomy visible.
-- **StatCards** — sentiment trend direction, post volume indicators
+Well a more fleshed out version would leverage stronger, more expensive versions of the APIs I’m using for this project. Some features I could possibly also use are something regarding being able to filter by subreddit and have some form of baseline for each post (i.e. a perma-bull being bearish makes much more news than a perma-bear doing bear things). Something akin to a “Ground News” thing, where we could see author biases and find blind-spots in the narrative. Maybe add some vector between writer and typical sentiment and weigh it against what they wrote in that article. Greater discrepancies would be weighted more in short-term calculations.
