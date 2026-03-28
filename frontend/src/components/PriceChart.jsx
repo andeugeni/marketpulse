@@ -54,6 +54,12 @@ function mergeSentiment(redditSentiment, newsSentiment) {
     });
   }
 
+  // Shift news timestamps forward 24h to align with today's price data
+  const shiftedNews = newsSentiment.map(s => ({
+    ...s,
+    hour: new Date(new Date(s.hour).getTime() + 24 * 60 * 60 * 1000).toISOString(),
+  }));
+
   for (const s of newsSentiment) {
     const existing = map.get(s.hour);
     if (existing) {
