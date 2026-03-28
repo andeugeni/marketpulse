@@ -60,7 +60,7 @@ function mergeSentiment(redditSentiment, newsSentiment) {
     hour: new Date(new Date(s.hour).getTime() + 24 * 60 * 60 * 1000).toISOString(),
   }));
 
-  console.log("shiftedNews")
+  console.log(shiftedNews);
 
   for (const s of shiftedNews) {
     const existing = map.get(s.hour);
