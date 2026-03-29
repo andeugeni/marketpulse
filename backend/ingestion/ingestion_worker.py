@@ -20,7 +20,7 @@ TICKERS = ['RDDT', 'RKLB', 'GOOG', 'SMCI']
 REDDIT_STREAM = "marketpulse:reddit_sentiment"
 NEWSAPI_STREAM = "marketpulse:newsapi_sentiment"
 
-REDDIT_POLL_INTERVAL = 300       # 5 minutes
+REDDIT_POLL_INTERVAL = 21600      # 6 hours
 NEWSAPI_POLL_INTERVAL = 21600    # 6 hours
 
 print(f"REDIS_URL loaded as: {REDIS_URL}")
@@ -85,7 +85,7 @@ async def run_reddit(redis):
                         await redis.xadd(
                             REDDIT_STREAM,
                             {"data": json.dumps(record)},
-                            maxlen=500,
+                            maxlen=100,
                             approximate=True,
                         )
                 print(f"[Reddit] Published batch to stream")
@@ -145,7 +145,7 @@ async def run_newsapi(redis):
                         await redis.xadd(
                             NEWSAPI_STREAM,
                             {"data": json.dumps(record)},
-                            maxlen=200,
+                            maxlen=100,
                             approximate=True,
                         )
                 print(f"[NewsAPI] Published batch to stream")
