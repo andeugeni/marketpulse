@@ -59,7 +59,7 @@ async def fetch_reddit(client: httpx.AsyncClient, symbol: str) -> list:
                         "symbol": symbol,
                         "title": post.get("title", ""),
                         "body": post.get("selftext", ""),
-                        "source": subreddit,
+                        "source": sR,
                         "post_id": post["id"],
                         "captured_at": datetime.fromtimestamp(
                             int(post["created_utc"]), tz=timezone.utc
