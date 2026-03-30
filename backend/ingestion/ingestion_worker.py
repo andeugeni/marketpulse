@@ -45,7 +45,7 @@ async def fetch_reddit(client: httpx.AsyncClient, symbol: str) -> list:
             "subreddit": sR,
             "selftext": symbol, 
             "limit": 25,
-            "after": "3day",
+            "after": "6hour",
         }
         try:
             response = await client.get(url, params=params, timeout=10)
