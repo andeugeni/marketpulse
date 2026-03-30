@@ -38,40 +38,45 @@ SUBREDDITS = {
 async def fetch_reddit(client: httpx.AsyncClient, symbol: str) -> list:
     subreddit = SUBREDDITS.get(symbol, symbol.lower())
     url = f"https://arctic-shift.photon-reddit.com/api/posts/search"
-    params = {
-        "subreddit": subreddit,
-        "selftext": symbol, 
-        "limit": 25,
-        "after": "6hour",
-    }
-    try:
-        response = await client.get(url, params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json().get("data", [])
+    
+    total_records = []
+    for sR in subreddit:
+        params = {
+            "subreddit": sR,
+            "selftext": symbol, 
+            "limit": 25,
+            "after": "3day",
+        }
+        try:
+            response = await client.get(url, params=params, timeout=10)
+            response.raise_for_status()
+            data = response.json().get("data", [])
 
-        records = []
-        for post in data:
-            try:
-                records.append({
-                    "symbol": symbol,
-                    "title": post.get("title", ""),
-                    "body": post.get("selftext", ""),
-                    "source": subreddit,
-                    "post_id": post["id"],
-                    "captured_at": datetime.fromtimestamp(
-                        int(post["created_utc"]), tz=timezone.utc
-                    ).isoformat(),
-                    "link": post.get("permalink", ""),
-                })
-            except Exception as e:
-                print(f"[{symbol}] Error parsing Reddit post: {e}")
+            records = []
+            for post in data:
+                try:
+                    records.append({
+                        "symbol": symbol,
+                        "title": post.get("title", ""),
+                        "body": post.get("selftext", ""),
+                        "source": subreddit,
+                        "post_id": post["id"],
+                        "captured_at": datetime.fromtimestamp(
+                            int(post["created_utc"]), tz=timezone.utc
+                        ).isoformat(),
+                        "link": post.get("permalink", ""),
+                    })
+                except Exception as e:
+                    print(f"[{symbol}] Error parsing Reddit post: {e}")
 
-        print(f"[{symbol}] Reddit — collected {len(records)} posts")
-        return records
+            print(f"[{symbol}] Reddit — collected {len(records)} posts")
+            total_records.append(records)
 
-    except Exception as e:
-        print(f"[{symbol}] Reddit fetch error: {e}")
-        return []
+        except Exception as e:
+            print(f"[{symbol}] Reddit fetch error: {e}")
+            continue
+        
+        return total_records
 
 
 async def run_reddit(redis):
