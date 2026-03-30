@@ -70,7 +70,7 @@ async def fetch_reddit(client: httpx.AsyncClient, symbol: str) -> list:
                     print(f"[{symbol}] Error parsing Reddit post: {e}")
 
             print(f"[{symbol}] Reddit — collected {len(records)} posts")
-            total_records.append(records)
+            total_records += records
 
         except Exception as e:
             print(f"[{symbol}] Reddit fetch error: {e}")
