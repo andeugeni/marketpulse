@@ -76,7 +76,7 @@ async def fetch_reddit(client: httpx.AsyncClient, symbol: str) -> list:
             print(f"[{symbol}] Reddit fetch error: {e}")
             continue
         
-        return total_records
+    return total_records
 
 
 async def run_reddit(redis):
