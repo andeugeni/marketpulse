@@ -100,6 +100,9 @@ export default function PriceChart({ prices, redditSentiment, newsSentiment, day
     newsSentiment ?? []
   );
 
+  console.log("newsSentiment prop:", newsSentiment);
+  console.log("sentimentData:", sentimentData.filter(d => d.newsSentiment !== null));
+
   const hasSentiment = sentimentData.length > 0;
   const priceTickInterval = Math.max(3, Math.floor(priceData.length / 8));
   const sentimentTickInterval = Math.max(3, Math.floor(sentimentData.length / 6));
