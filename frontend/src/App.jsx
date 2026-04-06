@@ -50,7 +50,7 @@ export default function App() {
     const { from, to } = getLastNTradingDays(days);
 
     const sentimentFrom = new Date();
-    sentimentFrom.setHours(sentimentFrom.getHours() - 48);
+    sentimentFrom.setHours(sentimentFrom.getHours() - (days * 24));
 
     // Fire all three requests simultaneously — one Supabase wakeup instead of three
     Promise.all([
