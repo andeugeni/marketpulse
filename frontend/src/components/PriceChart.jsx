@@ -40,55 +40,46 @@ const SentimentTooltip = ({ active, payload, label }) => {
   );
 };
 
+function toHourKey(isoString) {
+  const d = new Date(isoString);
+  d.setMinutes(0, 0, 0);
+  return d.toISOString();
+}
+
 // ── Merges two time-series arrays keyed by hour string.
 //    Missing source at a bucket stays null — no bar renders. ──
 function mergeSentiment(redditSentiment, newsSentiment) {
   const map = new Map();
 
   for (const s of redditSentiment) {
-    map.set(s.hour, {
-      time: new Date(s.hour).toLocaleString([], {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
+    const key = toHourKey(s.hour);
+    map.set(key, {
+      time: new Date(key).toLocaleString([], {
+        month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
       }),
-      hour: s.hour,
+      hour: key,
       redditSentiment: parseFloat(s.avg_score),
       newsSentiment: null,
     });
   }
 
-  // Shift news timestamps forward 24h to align with today's price data
-  const shiftedNews = newsSentiment.map(s => ({
-    ...s,
-    hour: new Date(new Date(s.hour).getTime() + 24 * 60 * 60 * 1000).toISOString(),
-  }));
-  // console.log("PRICE CHART STUFF ===")
-  // console.log(redditSentiment);
-  // console.log(newsSentiment);
-  // console.log(shiftedNews);
-
-  for (const s of shiftedNews) {
-    const existing = map.get(s.hour);
+  for (const s of newsSentiment) {
+    const key = toHourKey(s.hour);
+    const existing = map.get(key);
     if (existing) {
       existing.newsSentiment = parseFloat(s.avg_score);
     } else {
-      map.set(s.hour, {
-        time: new Date(s.hour).toLocaleString([], {
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
+      map.set(key, {
+        time: new Date(key).toLocaleString([], {
+          month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
         }),
-        hour: s.hour,
+        hour: key,
         redditSentiment: null,
         newsSentiment: parseFloat(s.avg_score),
       });
     }
   }
 
-  // Sort chronologically so the x-axis is always in order
   return Array.from(map.values()).sort((a, b) => a.hour.localeCompare(b.hour));
 }
 
