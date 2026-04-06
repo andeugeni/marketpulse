@@ -80,7 +80,7 @@ export default function App() {
     .catch(err => console.error("Data fetch error:", err))
     .finally(() => setLoading(false));
 
-  }, [activeTicker]);
+  }, [activeTicker, days]);
 
   const appendPrice = (record) => {
     setPrices(prev => [...prev.slice(-499), record]);
