@@ -92,7 +92,7 @@ function mergeSentiment(redditSentiment, newsSentiment) {
   return Array.from(map.values()).sort((a, b) => a.hour.localeCompare(b.hour));
 }
 
-export default function PriceChart({ prices, redditSentiment, newsSentiment }) {
+export default function PriceChart({ prices, redditSentiment, newsSentiment, days, onDaysChange}) {
   const priceData = prices.map(p => ({
     time: new Date(p.captured_at).toLocaleString([], {
       month: "short",
