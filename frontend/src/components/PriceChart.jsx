@@ -28,7 +28,8 @@ const SentimentTooltip = ({ active, payload, label }) => {
     }}>
       <div style={{ color: "#8b949e", marginBottom: 6 }}>{label}</div>
       {payload.map((entry) => {
-        if (entry.value == null) return null; // skip null series at this bucket
+        if (entry.value == null) return null;
+        if (!entry.name?.trim()) return null;  // ← skip blank-named bars
         const val = entry.value;
         return (
           <div key={entry.name} style={{ color: entry.color, marginBottom: 2 }}>
