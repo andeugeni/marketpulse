@@ -8,29 +8,27 @@ import { useWebSocket } from "./hooks/useWebSocket";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
-function getLastTradingDay() {
+function getLastNTradingDays(n) {
   const now = new Date();
-  const day = now.getDay();
+  let daysFound = 0;
+  let cursor = new Date(now);
+  const dates = [];
 
-  const daysBack = day === 0 ? 2 : day === 6 ? 1 : 0;
-  const tradingDay = new Date(now);
-  tradingDay.setDate(now.getDate() - daysBack);
-
-  const from = new Date(tradingDay);
-  from.setHours(6, 30, 0, 0);
-  from.setDate(from.getDate() - 2); // ← look back 2 extra days
-
-  const to = new Date(tradingDay);
-  to.setHours(13, 0, 0, 0);
-
-  if (daysBack === 0 && now < from) {
-    const prevDay = now.getDay() === 1 ? 3 : 1;
-    from.setDate(from.getDate() - prevDay);
-    to.setDate(to.getDate() - prevDay);
+  while (daysFound < n) {
+    const day = cursor.getDay();
+    if (day !== 0 && day !== 6) {
+      dates.push(new Date(cursor));
+      daysFound++;
+    }
+    cursor.setDate(cursor.getDate() - 1);
   }
 
-  const marketOpen = daysBack === 0 && now >= from && now <= to;
-  return { from, to: marketOpen ? now : to };
+  // earliest trading day in window
+  const oldest = dates[dates.length - 1];
+  const from = new Date(oldest);
+  from.setHours(6, 30, 0, 0);
+
+  return { from, to: now };
 }
 
 export default function App() {
@@ -43,12 +41,13 @@ export default function App() {
   const [redditSentiment, setRedditSentiment] = useState([]);
   const [newsSentiment, setNewsSentiment] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [days, setDays] = useState(1);
 
   useEffect(() => {
     if (!activeTicker) return;
     setLoading(true);
 
-    const { from, to } = getLastTradingDay();
+    const { from, to } = getLastNTradingDays(days);
 
     const sentimentFrom = new Date();
     sentimentFrom.setHours(sentimentFrom.getHours() - 48);
@@ -170,7 +169,7 @@ export default function App() {
           </div>
         ) : (
           <>
-            <StatCards prices={prices} redditSentiment={redditSentiment} newsSentiment={newsSentiment} />
+            <StatCards prices={prices} redditSentiment={redditSentiment} newsSentiment={newsSentiment} days={days} onDaysChange={setDays}/>
             <PriceChart prices={prices} redditSentiment={redditSentiment} newsSentiment={newsSentiment}/>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, width: "100%" }}>
               <div style={{ minWidth: 0 }}>

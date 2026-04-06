@@ -47,16 +47,16 @@ function mergeSentiment(redditSentiment, newsSentiment) {
 
   for (const s of redditSentiment) {
     map.set(s.hour, {
-        time: new Date(s.hour).toLocaleString([], {
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        hour: s.hour,
-        redditSentiment: parseFloat(s.avg_score),
-        newsSentiment: null,
-      });
+      time: new Date(s.hour).toLocaleString([], {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      hour: s.hour,
+      redditSentiment: parseFloat(s.avg_score),
+      newsSentiment: null,
+    });
   }
 
   // Shift news timestamps forward 24h to align with today's price data
@@ -124,20 +124,40 @@ export default function PriceChart({ prices, redditSentiment, newsSentiment }) {
     }}>
 
       {/* Header */}
-      <div style={{
-        display: "flex", justifyContent: "space-between",
-        alignItems: "center", marginBottom: 16
-      }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <span style={{
           fontSize: 13, color: "#8b949e",
           textTransform: "uppercase", letterSpacing: "0.5px"
         }}>
-          Price + Sentiment · 24h
+          Price + Sentiment
         </span>
-        <div style={{ display: "flex", gap: 16, fontSize: 11 }}>
-          <span style={{ color: "#388bfd" }}>── Price</span>
-          <span style={{ color: "#ff8c42" }}>▬ Reddit</span>
-          <span style={{ color: "#ff6eb4" }}>▬ News</span>
+
+        {/* Window toggle */}
+        <div style={{
+          display: "flex",
+          border: "1px solid #30363d",
+          borderRadius: 6,
+          overflow: "hidden",
+        }}>
+          {[1, 2, 5].map(d => (
+            <button
+              key={d}
+              onClick={() => onDaysChange(d)}
+              style={{
+                padding: "3px 10px",
+                fontSize: 11,
+                fontFamily: "monospace",
+                background: days === d ? "#388bfd" : "transparent",
+                color: days === d ? "#fff" : "#8b949e",
+                border: "none",
+                borderRight: d !== 5 ? "1px solid #30363d" : "none",
+                cursor: "pointer",
+                transition: "background 0.15s",
+              }}
+            >
+              {d}D
+            </button>
+          ))}
         </div>
       </div>
 
@@ -223,11 +243,11 @@ export default function PriceChart({ prices, redditSentiment, newsSentiment }) {
                   {/* Bars overlap — reddit renders first, news on top.
                       barSize is fixed so they don't stretch on sparse data. */}
                   <Bar dataKey="redditSentiment" name="Reddit" fill="#ff8c42" opacity={0.25} maxBarSize={48} radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="newsSentiment"   name="News"   fill="#ff6eb4" opacity={0.25} maxBarSize={48} radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="newsSentiment" name="News" fill="#ff6eb4" opacity={0.25} maxBarSize={48} radius={[3, 3, 0, 0]} />
 
                   {/* Lines sit on top of bars for readability */}
                   <Line type="monotone" dataKey="redditSentiment" name="Reddit" stroke="#ff8c42" strokeWidth={1.5} dot={false} connectNulls />
-                  <Line type="monotone" dataKey="newsSentiment"   name="News"   stroke="#ff6eb4" strokeWidth={1.5} dot={false} connectNulls />
+                  <Line type="monotone" dataKey="newsSentiment" name="News" stroke="#ff6eb4" strokeWidth={1.5} dot={false} connectNulls />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
