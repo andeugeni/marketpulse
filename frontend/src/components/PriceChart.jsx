@@ -236,8 +236,8 @@ export default function PriceChart({ prices, redditSentiment, newsSentiment, day
 
                   {/* Bars overlap — reddit renders first, news on top.
                       barSize is fixed so they don't stretch on sparse data. */}
-                  <Bar dataKey="redditSentiment" name="Reddit" fill="#ff8c42" opacity={0.25} maxBarSize={48} radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="newsSentiment" name="News" fill="#ff6eb4" opacity={0.25} maxBarSize={48} radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="redditSentiment" name=" " fill="#ff8c42" opacity={0.25} maxBarSize={48} radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="newsSentiment" name="  " fill="#ff6eb4" opacity={0.25} maxBarSize={48} radius={[3, 3, 0, 0]} />
 
                   {/* Lines sit on top of bars for readability */}
                   <Line type="monotone" dataKey="redditSentiment" name="Reddit" stroke="#ff8c42" strokeWidth={1.5} dot={false} connectNulls />
