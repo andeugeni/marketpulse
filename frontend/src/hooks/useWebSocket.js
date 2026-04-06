@@ -8,6 +8,7 @@ export function useWebSocket(symbol, { onPrice, onSentiment }) {
   useEffect(() => {
     if (!symbol) return;
 
+    let suppressReconnect = false;
     const ws = new WebSocket(`${WS_URL}/ws/${symbol}`);
     wsRef.current = ws;
 
@@ -15,12 +16,18 @@ export function useWebSocket(symbol, { onPrice, onSentiment }) {
 
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
+      if (msg.type === "closed") {
+        suppressReconnect = true;
+        console.log(`[${symbol}] Market closed — WebSocket standing down`);
+        ws.close();
+        return;
+      }
       if (msg.type === "price" && onPrice) onPrice(msg.data);
       if (msg.type === "sentiment" && onSentiment) onSentiment(msg.data);
     };
 
-    ws.onerror = (e) => console.error("WebSocket error:", e);
-    ws.onclose = () => console.log(`[${symbol}] WebSocket disconnected`);
+    ws.onerror = (e) => { if (!suppressReconnect) console.error("WebSocket error:", e); };
+    ws.onclose = () => { if (!suppressReconnect) console.log(`[${symbol}] WebSocket disconnected`); };
 
     return () => ws.close();
   }, [symbol, onPrice, onSentiment]);
