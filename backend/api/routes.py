@@ -95,7 +95,7 @@ async def get_sentiment(
             WHERE symbol = $1
             AND (($2::timestamptz IS NULL) OR captured_at >= $2::timestamptz)
             AND (($3::timestamptz IS NULL) OR captured_at <= $3::timestamptz)
-            GROUP BY symbol, DATE_TRUNC('hour', captured_at), source
+            GROUP BY symbol, DATE_TRUNC('hour', captured_at)
             ORDER BY hour DESC
             LIMIT $4
             """,
