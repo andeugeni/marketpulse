@@ -19,7 +19,7 @@ print(f"ALL VARS: { {k: v for k, v in os.environ.items() if 'POSTGRES' in k or '
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.pool = await asyncpg.create_pool(POSTGRES_URL)
+    app.state.pool = await asyncpg.create_pool(POSTGRES_URL, min_size=1, max_size=5, statement_cache_size=0)
     print("Database pool created")
     yield
     await app.state.pool.close()
