@@ -21,7 +21,7 @@ class SentimentResponse(BaseModel):
     hour: datetime
     avg_score: float
     post_count: int
-    source: Optional[str]
+    source: Optional[str] = None
 
 
 class SummaryResponse(BaseModel):
