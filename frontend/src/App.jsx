@@ -169,8 +169,8 @@ export default function App() {
           </div>
         ) : (
           <>
-            <StatCards prices={prices} redditSentiment={redditSentiment} newsSentiment={newsSentiment} days={days} onDaysChange={setDays}/>
-            <PriceChart prices={prices} redditSentiment={redditSentiment} newsSentiment={newsSentiment}/>
+            <StatCards prices={prices} redditSentiment={redditSentiment} newsSentiment={newsSentiment}/>
+            <PriceChart prices={prices} redditSentiment={redditSentiment} newsSentiment={newsSentiment} days={days} onDaysChange={setDays}/>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, width: "100%" }}>
               <div style={{ minWidth: 0 }}>
                 <SentimentFeed symbol={activeTicker} posts={redditPosts} />
