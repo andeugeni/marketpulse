@@ -1,4 +1,4 @@
-const TICKERS = ["RDDT", "RKLB", "GOOG", "SMCI"];
+const TICKERS = ["GOOG", "RDDT", "RKLB", "SMCI"];
 
 export default function TickerSelector({ active, onChange }) {
   return (
