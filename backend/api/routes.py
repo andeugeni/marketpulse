@@ -89,7 +89,7 @@ async def get_sentiment(
                 symbol,
                 DATE_TRUNC('hour', captured_at) AS hour,
                 AVG(score)::NUMERIC(5,4)         AS avg_score,
-                COUNT(*)                         AS post_count,
+                COUNT(*)                         AS post_count
             FROM sentiment_records
             WHERE symbol = $1
             AND (($2::timestamptz IS NULL) OR captured_at >= $2::timestamptz)
